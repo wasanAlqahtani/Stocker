@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+sign up Page
+{% endblock %}
+
+{% block content %}
+  <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow" style="max-width: 450px; width: 100%;">
+      <h3 class="mb-4 text-center">Sign Up</h3>
+      <form>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="first_name" class="form-label">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              name="first_name"
+              required
+            />
+          </div>
+          <div class="col">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              name="last_name"
+              required
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            name="username"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-outline-secondary  w-100">Sign Up</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

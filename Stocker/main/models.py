@@ -1,0 +1,14 @@
+from django.db import models
+
+# Create your models here.
+class Supplier(models.Model):
+    name = models.CharField(max_length=1024)
+    logo = models.ImageField(upload_to="images/", default="images/default.jpg")
+    email = models.EmailField()
+    website_link = models.URLField()
+    phone_number = models.CharField(max_length=20)
+
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=1024)
+    description = models.TextField()

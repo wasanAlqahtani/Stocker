@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/style.css'%}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <title>{% block title %} {% endblock %}</title>
+</head>
+
+<body class="min-vh-100 d-flex flex-column">
+  <!-- Top Navbar -->
+  <nav class="navbar top-nav navbar-expand-lg navbar-light bg-light shadow-sm py-2 px-4">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'main:home_view' %}">
+        JewelleryTrack
+        </a>
+    <div class="d-flex justify-content-end align-items-center">
+      <ul class="navbar-nav me-3">
+        <li class="nav-item">
+          <a class="nav-link small text-secondary" href="{% url 'main:login_view' %}">Login</a>
+        </li>
+      </ul>
+      
+      <form class="d-flex align-items-center" role="search">
+        <input class="form-control form-control-sm me-2" type="search" placeholder="Search for product">
+        <button class="btn btn-outline-secondary btn-sm" type="submit">Search</button>
+      </form>
+    </div>
+    </div>
+  </nav>
+
+  <div class="flex-grow-1 d-flex">
+    <!-- Sidebar -->
+    <aside class="background-nav p-3 d-flex flex-column">
+      <ul class="nav flex-column">
+        <li class="nav-item mb-3">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home_view' %}active{% endif %}" href="{% url 'main:home_view' %}">
+            <i class="bi bi-house me-2"></i> Home
+          </a>
+        </li>
+        <li class="nav-item mb-3">
+          <a class="nav-link {% if request.resolver_match.url_name == 'all_product_view' %}active{% endif %}" href="{% url 'product:all_product_view' %}">
+            <i class="bi bi-box me-2"></i> Products
+          </a>
+        </li>
+        <li class="nav-item mb-3">
+          <a class="nav-link {% if request.resolver_match.url_name == 'all_category_view' %}active{% endif %}" href="{% url 'main:all_category_view' %}"><i class="bi bi-tags me-2"></i> Categories</a>
+        </li>
+        <li class="nav-item mb-3">
+          <a class="nav-link {% if request.resolver_match.url_name == 'all_supplier_view' %}active{% endif %}" href="{% url 'main:all_supplier_view' %}"><i class="bi bi-building me-2"></i> Suppliers</a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="flex-grow-1 p-4">
+      {% block content %}
+      {% endblock %}
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+.background-nav {
+  background-color: pink !important;
+  min-height: 100vh;
+  width: 200px;
+}
+.top-nav a{
+      color: rgb(50, 3, 50) !important;
+}
+
+.background-nav a {
+  color: rgb(50, 3, 50) !important;
+  font-size: 0.85rem;
+}
+
+.background-nav a.nav-link:hover {
+  color: rgb(50, 3, 50) !important;
+  font-weight: bold;
+}
+
+.background-nav a.active {
+  color: rgb(50, 3, 50) !important;
+  background-color: white;
+  border-radius: 3rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.25rem 1rem;
+}
