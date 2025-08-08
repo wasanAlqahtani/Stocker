@@ -7,8 +7,9 @@ class Supplier(models.Model):
     email = models.EmailField()
     website_link = models.URLField()
     phone_number = models.CharField(max_length=20)
-
+    created_at = models.DateField(auto_now_add=True)
 
 class Category(models.Model):
     category_name = models.CharField(max_length=1024)
     description = models.TextField()
+    created_at = models.DateField(auto_now_add=True)

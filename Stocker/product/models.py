@@ -12,3 +12,4 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     suppliers = models.ManyToManyField(Supplier)
     picture = models.ImageField(upload_to="images/", default="images/default.jpg")
+    created_at = models.DateField(auto_now_add=True)
