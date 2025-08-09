@@ -5,6 +5,63 @@ Home Page
 {% endblock %}
 
 {% block content %}
+     {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
 
+<div class="welcome-text">
+  <h5>Welcome to jewelryTrack. Easily monitor your jewelry inventory and stock levels, ensuring you stay fully stocked and ready to serve your customers. Manage your supplies efficiently and keep your business shining bright.</h5>
+</div>
+
+<div class="dashboard-container">
+  <div class="dashboard-card">
+    <h5>Stock Status</h5>
+
+  </div>
+  <div class="dashboard-card">
+    <h5>Top Supplier</h5>
+
+  </div>
+  <div class="dashboard-card">
+    <h5>Most Category</h5>
+
+  </div>
+</div>
+
+<div class="report-card">
+  <h5>Latest Products with Stock Status</h5>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Picture</th>
+        <th>Product</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td><img src="{{ product.picture.url }}" alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 80px;"></td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.created_at }}</td>
+        {% if product.quantity == 0 %}
+          <td class="text-danger">Out of stock</td>
+        {% elif product.quantity < 5 %}
+          <td class="text-warning">Low stock</td>
+        {% else %}
+          <td class="text-success">Available</td>
+        {% endif %}
+        <td>{{ product.quantity }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}
 

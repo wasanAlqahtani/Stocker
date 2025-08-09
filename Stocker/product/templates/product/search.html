@@ -5,5 +5,14 @@ Search Page
 {% endblock %}
 
 {% block content %}
+{% if products %}
+  <h2 class="mt-4 search-result">Search Results ({{ products.count }})</h2>
+  <h5 class="search-result">Results for: <strong>{{ request.GET.search }}</strong></h5>
+  
+{% include 'product/product_list.html' %}
+
+{% else %}
+  <h5 class="mt-4 text-danger">No results found for "{{ request.GET.search }}"</h5>
+{% endif %}
 
 {% endblock %}

@@ -1,0 +1,201 @@
+<!--Table to display Products -->
+<p> Total Number Of Products: {{products.count}}</p>
+<table class="table table-striped align-middle">
+  <thead class="table-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Product Name</th>
+      <th scope="col">Category</th>
+      <th scope="col">Status</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Price</th>
+      <th scope="col"> Edit & Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in page_obj %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+         <td>
+      <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#productModal{{ product.id }}">
+        {{ product.name }}
+      </a>
+
+      <div class="modal fade" id="productModal{{ product.id }}" tabindex="-1" aria-labelledby="productModalLabel{{ product.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h5 class="modal-title" id="productModalLabel{{ product.id }}">
+                {{ product.name }}
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+              <img src="{{ product.picture.url }}" alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 150px;">
+
+              <p><strong>Description:</strong><p>
+              <p>{{ product.description }}</p>
+
+              <p><strong>Quantity:</strong></p>
+              <p>{{ product.quantity }}</p>
+
+              <p><strong>Price:</strong></p>
+              <p>{{ product.price }} SAR</p>
+              
+              <p><strong>Category:</strong></p>
+              <p>{{ product.category }}</p>
+
+              <p><strong>Suppliers:</strong></p>
+              {% for supplier in product.suppliers.all %}
+              <p>{{ supplier }}</p>
+              {% endfor %}
+
+              <p><strong>Created at:</strong></p>
+              <p></strong> {{ product.created_at }}</p>
+
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </td>
+
+      <td>{{ product.category.category_name }}</td>
+          {%if product.quantity == 0 %}
+            <td class="text-danger" >Out of stock </td>
+          {% elif product.quantity < 5  %}
+            <td class="text-warning">Low stock </td>
+          {% else %}
+             <td class="text-success" >Available</td>
+          {%endif%}
+
+      <td>{{ product.quantity }}</td>
+      <td>{{ product.price }} SAR</td>
+      <td>
+        <!-- Edit Product -->
+        <a href="#" class="text-warning me-2" data-bs-toggle="modal" data-bs-target="#updateProductModal{{ product.id }}">
+  <i class="bi bi-pencil-square"></i>
+</a>
+        <div class="modal fade" id="updateProductModal{{ product.id }}" tabindex="-1" aria-labelledby="updateProductModalLabel{{ product.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'product:update_product_view' product.id %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateProductModalLabel{{ product.id }}">Update Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" value="{{ product.name }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control">{{ product.description }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" name="quantity" class="form-control" value="{{ product.quantity }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select">
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == product.category.id %}selected{% endif %}>
+                  {{ category.category_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Suppliers</label><br>
+            {% for supplier in suppliers %}
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="suppliers" value="{{ supplier.id }}"
+                       id="supplier{{ supplier.id }}"
+                       {% if supplier in product.suppliers.all %}checked{% endif %}>
+                <label class="form-check-label" for="supplier{{ supplier.id }}">
+                  {{ supplier.name }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            {% if product.picture %}
+              <img src="{{ product.picture.url }}" class="w-50 mb-2">
+              <br>
+            {% endif %}
+            <label class="form-label">Picture</label>
+            <input type="file" name="picture" class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Update Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
+
+        <!-- Delete Product For Admin Only  -->
+        {% if request.user.is_superuser%}
+        <a href="{% url 'product:delete_product_view' product.id %}" class="text-danger" onclick="return confirm('Are you sure you want to delete this product?')">
+          <i class="bi bi-trash3"></i>
+        </a>
+        {%endif%}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_supplier %}suppliers={{ selected_supplier }}&{% endif %}page={{ page_obj.previous_page_number }}">&laquo;</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_supplier %}suppliers={{ selected_supplier }}&{% endif %}page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_supplier %}suppliers={{ selected_supplier }}&{% endif %}page={{ page_obj.next_page_number }}">&raquo;</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}

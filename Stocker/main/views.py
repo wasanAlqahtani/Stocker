@@ -3,13 +3,15 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
 from main.models import Category, Supplier
+from product.models import Product
 from .forms  import CategoryForm, SupplierForm
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 
 def home_view(request : HttpRequest):
-     return render(request, "main/home.html")
+     products = Product.objects.order_by('-created_at')[:5]
+     return render(request, "main/home.html",{'products':products})
 
 #-----------------------------------------------------------------------------------
 def login_view(request : HttpRequest):
@@ -65,10 +67,6 @@ def add_category_view(request : HttpRequest):
     return render(request, "main/categories.html",{"category_form":category_form})
          
      
-#-----------------------------------------------------------------------------------     
-def category_detail_view(request : HttpRequest, category_id:int):
-    pass
-
 #-----------------------------------------------------------------------------------
 def update_category_view(request : HttpRequest, category_id:int):
     if not request.user.is_superuser:
@@ -111,27 +109,52 @@ def add_supplier_view(request : HttpRequest):
     if not request.user.is_superuser:
         messages.warning(request, "only admin can add supplier", "alert-warning")
         return redirect("main:suppliers.html")
+    try:
+        if request.method == "POST":
+           supplier_form = SupplierForm(request.POST,request.FILES)
+           if supplier_form.is_valid():
+              supplier_form.save()
+              messages.success(request, "Add Supplier successfully", "alert-success")
+              return redirect("main:all_supplier_view")
+        else:
+            print("not valid form")
+    except Exception as e:
+        messages.error(request, "Couldn't Add Category", "alert-danger")
+    
+    return render(request, "main/categories.html",{"category_form":supplier_form})
     
 #----------------------------------------------------------------------------------
 def update_supplier_view(request : HttpRequest, supplier_id:int):
     if not request.user.is_superuser:
         messages.warning(request, "only admin can update supplier", "alert-warning")
         return redirect("main:suppliers.html")
+    try:
+            supplier = Supplier.objects.get(pk=supplier_id)
+            supplier.name = request.POST["name"]
+            supplier.email = request.POST["email"]
+            supplier.website_link = request.POST["website_link"]
+            supplier.phone_number = request.POST["phone_number"]
+            if "logo" in request.FILES:
+                supplier.logo = request.FILES["logo"]
+            
+            supplier.save()
+            messages.success(request, "Supplier updated successfully", "alert-success")
+    except Exception as e:
+            messages.error(request, "Couldn't update Supplier", "alert-danger")
+    
+    return redirect("main:all_supplier_view")
     
 #-----------------------------------------------------------------------------------
 def all_supplier_view(request : HttpRequest):
     suppliers = Supplier.objects.all()
-    return render(request, "main/suppliers.html",{'suppliers': suppliers})
+    supplier_form = SupplierForm()
+    return render(request, "main/suppliers.html",{'suppliers': suppliers, 'supplier_form':supplier_form})
 
 #-----------------------------------------------------------------------------------
-def supplier_detail_view(request : HttpRequest, supplier_id:int):
-    pass
-
-#-----------------------------------------------------------------------------------
-def delete_supplier(request : HttpRequest, supplier_id:int):
+def delete_supplier_view(request : HttpRequest, supplier_id:int):
     if not request.user.is_superuser:
         messages.warning(request, "only admin can delete supplier", "alert-warning")
-        return redirect("main:suppliers.html")
+        return redirect("main:all_supplier_view")
     
     try:
         supplier = Supplier.objects.get(pk=supplier_id)
@@ -140,7 +163,4 @@ def delete_supplier(request : HttpRequest, supplier_id:int):
     except Exception as e:
         messages.error(request, "Couldn't Delete Supplier", "alert-danger")
 
-    return redirect("main:suppliers.html")
-
-
-
+    return redirect("main:all_supplier_view")

@@ -8,7 +8,6 @@ class Product(models.Model):
     description = models.TextField()
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=20, decimal_places=2)
-    expiry_date = models.DateField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     suppliers = models.ManyToManyField(Supplier)
     picture = models.ImageField(upload_to="images/", default="images/default.jpg")

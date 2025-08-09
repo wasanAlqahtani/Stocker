@@ -11,11 +11,9 @@ urlpatterns = [
     path("categories/add", views.add_category_view,name="add_category_view"),
     path("categories/delete/<category_id>/", views.delete_category_view,name="delete_category_view"),
     path("categories/update/<int:category_id>/", views.update_category_view,name="update_category_view"),
-    path("categories/detail/<category_id>/", views.category_detail_view,name="category_detail_view"),
     path("suppliers/", views.all_supplier_view,name="all_supplier_view"),
     path("suppliers/add", views.add_supplier_view,name="add_supplier_view"),
-    path("suppliers/delete/<supplier_id>/", views.delete_supplier,name="delete_supplier"),
+    path("suppliers/delete/<supplier_id>/", views.delete_supplier_view,name="delete_supplier_view"),
     path("suppliers/update/<supplier_id>/", views.update_supplier_view,name="update_supplier_view"),
-    path("suppliers/detail/<supplier_id>/", views.supplier_detail_view,name="supplier_detail_view"),
     path("signout/", views.sign_out, name="sign_out")
 ]

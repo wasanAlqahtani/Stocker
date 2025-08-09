@@ -5,6 +5,14 @@ categories Page
 {% endblock %}
 
 {% block content %}
+     {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
 {% if request.user.is_superuser%}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
@@ -47,9 +55,11 @@ categories Page
 <table class="table table-striped align-middle">
   <thead class="table-light">
     <tr>
-      <th scope="col">#</th>
+      <th scope="col">Number</th>
       <th scope="col">Category Name</th>
+      {% if request.user.is_superuser%}
       <th scope="col"> Edit & Delete</th>
+      {%endif%}
     </tr>
   </thead>
   <tbody>
@@ -76,7 +86,8 @@ categories Page
           <p><strong>Description:</strong></p>
           <p>{{ category.description }}</p>
 
-          <p class="text-muted"><strong>Created at:</strong> {{ category.created_at }}</p>
+          <p><strong>Created at:</strong></p>
+          <p>{{ category.created_at }}</p>
         </div>
 
         <div class="modal-footer">
@@ -87,6 +98,7 @@ categories Page
     </div>
   </div>
       </td>
+      {% if request.user.is_superuser%}
       <td>
         <a href="#" class="text-warning me-2" data-bs-toggle="modal" data-bs-target="#updateCategoryModal{{ category.id }}">
         <i class="bi bi-pencil-square"></i>
@@ -125,6 +137,7 @@ categories Page
           <i class="bi bi-trash3"></i>
         </a>
       </td>
+      {%endif%}
     </tr>
     {% endfor %}
   </tbody>

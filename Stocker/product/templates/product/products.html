@@ -3,45 +3,67 @@
 {% block title %}
 Products Page
 {% endblock %}
-
 {% block content %}
+
+     {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
 <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
   Add Product
 </button>
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form method="POST" action="{% url 'product:add_product_view' %}">
+
+      <!--Add Product -->
+
+      <form method="POST" action="{% url 'product:add_product_view' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-header">
-          <h5 class="modal-title">Add Product</h5>
+          <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
-          <!-- Form fields -->
           <div class="mb-3">
-            <label for="name" class="form-label">Product Name</label>
-            <input type="text" class="form-control" name="name" required>
+            <label for="{{ product_form.name.id_for_label }}" class="form-label">{{ product_form.name.label }}</label>
+            {{ product_form.name }}
           </div>
 
           <div class="mb-3">
-            <label for="supplier_id" class="form-label">Supplier</label>
-            <select class="form-select" name="supplier_id" required>
-              {% for supplier in suppliers %}
-              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-              {% endfor %}
-            </select>
+            <label for="{{ product_form.description.id_for_label }}" class="form-label">{{ product_form.description.label }}</label>
+            {{ product_form.description }}
           </div>
 
           <div class="mb-3">
-            <label for="category_id" class="form-label">Category</label>
-            <select class="form-select" name="category_id" required>
-              {% for category in categories %}
-              <option value="{{ category.id }}">{{ category.name }}</option>
-              {% endfor %}
-            </select>
+            <label for="{{ product_form.quantity.id_for_label }}" class="form-label">{{ product_form.quantity.label }}</label>
+            {{ product_form.quantity }}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ product_form.price.id_for_label }}" class="form-label">{{ product_form.price.label }}</label>
+            {{ product_form.price }}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ product_form.category.id_for_label }}" class="form-label">{{ product_form.category.label }}</label>
+            {{ product_form.category }}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ product_form.suppliers.id_for_label }}" class="form-label">{{ product_form.suppliers.label }}</label>
+            {{ product_form.suppliers }}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ product_form.picture.id_for_label }}" class="form-label">{{ product_form.picture.label }}</label>
+            {{ product_form.picture }}
           </div>
         </div>
 
@@ -53,62 +75,25 @@ Products Page
     </div>
   </div>
 </div>
+    <form method="GET" class="d-flex gap-2" action="{% url 'product:all_product_view' %}">
+       <select name="suppliers" class="form-select form-select-sm">
+    <option value="">Filter by Supplier</option>
+    {% for supplier in suppliers %}
+      <option value="{{ supplier.id }}" {% if supplier.id|stringformat:"s" == selected_supplier %}selected{% endif %}>{{ supplier.name }}</option>
+    {% endfor %}
+  </select>
 
-    <form method="GET" class="d-flex gap-2">
-      <select class="form-select form-select-sm" name="supplier_filter" id="supplier_filter">
-        <option value="">Filter by Supplier</option>
-        {% for supplier in suppliers %}
-          <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-        {% endfor %}
-      </select>
-
-      <select class="form-select form-select-sm" name="category_filter" id="category_filter">
-        <option value="">Filter by Category</option>
-        {% for category in categories %}
-          <option value="{{ category.id }}">{{ category.name }}</option>
-        {% endfor %}
-      </select>
+  <select name="category" class="form-select form-select-sm">
+    <option value="">Filter by Category</option>
+    {% for category in categories %}
+      <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>{{ category.category_name }}</option>
+    {% endfor %}
+  </select>
       <button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button>
     </form>
 
 </div>
 
-<table class="table table-striped align-middle">
-  <thead class="table-light">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Product Name</th>
-      <th scope="col">Category</th>
-      <th scope="col">Status</th>
-      <th scope="col">Quantity</th>
-      <th scope="col">Price</th>
-      <th scope="col"> Edit & Delete</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for product in products %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
+{% include 'product/product_list.html' %}
 
-      <td>
-        <a href="{% url 'product:product_detail_view' product.id %}" class="text-decoration-none">
-          {{ product.name }}
-        </a>
-      </td>
-
-      <td>{{ product.category.category_name }}</td>
-      <td>{{ product.quantity }}</td>
-      <td>{{ product.price }}</td>
-      <td>
-        <a href="{% url 'product:update_product_view' product.id %}" class="text-warning me-2">
-          <i class="bi bi-pencil-square"></i>
-        </a>
-        <a href="{% url 'product:delete_product_view' product.id %}" class="text-danger" onclick="return confirm('Are you sure you want to delete this product?')">
-          <i class="bi bi-trash3"></i>
-        </a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
 {% endblock %}
