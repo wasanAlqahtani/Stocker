@@ -12,17 +12,42 @@ Products Page
           </div>
         {% endfor %}
       {% endif %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+      Add Product
+    </button>
+  </div>
+  <div class="d-flex flex-column align-items-end">
+    <div class="mb-3">
+      <a href="{% url 'product:export_view' %}" class="btn btn-outline-secondary btn-sm me-2">
+  Export Data
+</a>
+  
+  </div>
+    <form method="GET" class="d-flex gap-2" action="{% url 'product:all_product_view' %}">
+      <select name="suppliers" class="form-select form-select-sm" style="min-width: 150px;">
+        <option value="">Filter by Supplier</option>
+        {% for supplier in suppliers %}
+          <option value="{{ supplier.id }}" {% if supplier.id|stringformat:"s" == selected_supplier %}selected{% endif %}>{{ supplier.name }}</option>
+        {% endfor %}
+      </select>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
-  Add Product
-</button>
+      <select name="category" class="form-select form-select-sm" style="min-width: 150px;">
+        <option value="">Filter by Category</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>{{ category.category_name }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button>
+    </form>
+  </div>
+</div>
+
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-
-      <!--Add Product -->
-
       <form method="POST" action="{% url 'product:add_product_view' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-header">
@@ -75,25 +100,10 @@ Products Page
     </div>
   </div>
 </div>
-    <form method="GET" class="d-flex gap-2" action="{% url 'product:all_product_view' %}">
-       <select name="suppliers" class="form-select form-select-sm">
-    <option value="">Filter by Supplier</option>
-    {% for supplier in suppliers %}
-      <option value="{{ supplier.id }}" {% if supplier.id|stringformat:"s" == selected_supplier %}selected{% endif %}>{{ supplier.name }}</option>
-    {% endfor %}
-  </select>
 
-  <select name="category" class="form-select form-select-sm">
-    <option value="">Filter by Category</option>
-    {% for category in categories %}
-      <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>{{ category.category_name }}</option>
-    {% endfor %}
-  </select>
-      <button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button>
-    </form>
-
-</div>
+<p>Total Number Of Products: {{ products.count }}</p>
 
 {% include 'product/product_list.html' %}
+
 
 {% endblock %}

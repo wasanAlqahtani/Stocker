@@ -1,5 +1,4 @@
 {% extends 'main/base.html' %}
-
 {% block title %}
 categories Page
 {% endblock %}
@@ -13,14 +12,14 @@ categories Page
         {% endfor %}
       {% endif %}
 
-{% if request.user.is_superuser%}
+{% if perms.main.add_category%}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
   Add Category
 </button>
 </div>
 {%endif%}
-
+<p> Total Number Of Category: {{categories.count}}</p>
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -57,6 +56,7 @@ categories Page
     <tr>
       <th scope="col">Number</th>
       <th scope="col">Category Name</th>
+      <th scope="col">Total Products</th>
       {% if request.user.is_superuser%}
       <th scope="col"> Edit & Delete</th>
       {%endif%}
@@ -68,7 +68,7 @@ categories Page
       <th scope="row">{{ forloop.counter }}</th>
 
       <td>
-        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#categoryModal{{ category.id }}">
+        <a href="#" class="fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#categoryModal{{ category.id }}">
             {{ category.category_name }}
         </a>
           <div class="modal fade" id="categoryModal{{ category.id }}" tabindex="-1" aria-labelledby="categoryModalLabel{{ category.id }}" aria-hidden="true">
@@ -98,7 +98,8 @@ categories Page
     </div>
   </div>
       </td>
-      {% if request.user.is_superuser%}
+      <td>{{ category.total_products }}</td>
+      {% if perms.main.change_category%}
       <td>
         <a href="#" class="text-warning me-2" data-bs-toggle="modal" data-bs-target="#updateCategoryModal{{ category.id }}">
         <i class="bi bi-pencil-square"></i>
@@ -133,9 +134,11 @@ categories Page
     </div>
   </div>
 </div>
+{% if perms.main.delete_category%}
         <a href="{% url 'main:delete_category_view' category.id %}" class="text-danger" onclick="return confirm('Are you sure you want to delete this Category?')">
           <i class="bi bi-trash3"></i>
         </a>
+        {%endif%}
       </td>
       {%endif%}
     </tr>

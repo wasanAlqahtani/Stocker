@@ -1,5 +1,4 @@
 <!--Table to display Products -->
-<p> Total Number Of Products: {{products.count}}</p>
 <table class="table table-striped align-middle">
   <thead class="table-light">
     <tr>
@@ -17,7 +16,7 @@
     <tr>
       <th scope="row">{{ forloop.counter }}</th>
          <td>
-      <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#productModal{{ product.id }}">
+      <a href="#" class="fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#productModal{{ product.id }}">
         {{ product.name }}
       </a>
 
@@ -158,7 +157,7 @@
 </div> 
 
         <!-- Delete Product For Admin Only  -->
-        {% if request.user.is_superuser%}
+        {% if perms.product.delete_product%}
         <a href="{% url 'product:delete_product_view' product.id %}" class="text-danger" onclick="return confirm('Are you sure you want to delete this product?')">
           <i class="bi bi-trash3"></i>
         </a>

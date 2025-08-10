@@ -6,23 +6,33 @@ from django.contrib import messages
 from main.models import Category, Supplier
 from django.core.paginator import Paginator
 from .forms  import ProductForm
+from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
+import csv
+
 # Create your views here.
 
 def search_view(request:HttpRequest):
     query = request.GET.get("search", "")
-    products = []
+    page_obj = []
+    categories = Category.objects.all()
+    suppliers =  Supplier.objects.all()
     if query:
-        products = Product.objects.filter(
+        page_obj = Product.objects.filter(
         Q(name__icontains=query) |
         Q(category__category_name__icontains=query) |
         Q(suppliers__name__icontains=query)
     ).distinct()
-    return render(request, "product/search.html", {"products": products})
+    return render(request, "product/search.html", {"page_obj": page_obj,'categories':categories, 'suppliers':suppliers,})
 
 #-----------------------------------------------------------------------------------
 def add_product_view(request : HttpRequest):
+    if not request.user.has_perm("product.add_product"):
+        messages.warning(request, "only employee and manager can add product", "alert-warning")
+        return redirect("product:all_product_view")
+     
     categories = Category.objects.all()
     suppliers =  Supplier.objects.all()
     try:
@@ -43,11 +53,14 @@ def add_product_view(request : HttpRequest):
 
 #-----------------------------------------------------------------------------------
 def update_product_view(request : HttpRequest, product_id:int):
+    if not request.user.has_perm("product.change_product"):
+        messages.warning(request, "only employee and manager can update product", "alert-warning")
+        return redirect("product:all_product_view")
     product = Product.objects.get(pk=product_id)
     try:
         product.name = request.POST["name"]
         product.description = request.POST["description"]
-        product.quantity = request.POST["quantity"]
+        product.quantity = int(request.POST["quantity"])
         product.price = request.POST["price"]
         product.category = Category.objects.get(pk=request.POST["category"])
         product.suppliers.set(request.POST.getlist("suppliers"))
@@ -55,14 +68,16 @@ def update_product_view(request : HttpRequest, product_id:int):
                 product.picture = request.FILES["picture"]
         product.save()
         messages.success(request, "Product updated successfully", "alert-success")
+        if product.quantity < 5:
+            send_email(request)
     except Exception as e:
-        messages.error(request, "Couldn't Update Product", "alert-danger")
+        messages.error(request, f"Couldn't Update Product {e}", "alert-danger")
 
     return redirect("product:all_product_view")
     
 #-----------------------------------------------------------------------------------
 def all_product_view(request : HttpRequest):
-    products = Product.objects.all()
+    products = Product.objects.all().order_by("id")
     categories = Category.objects.all()
     suppliers =  Supplier.objects.all()
     product_form = ProductForm()
@@ -84,7 +99,7 @@ def all_product_view(request : HttpRequest):
 #-----------------------------------------------------------------------------------
 def delete_product_view(request : HttpRequest, product_id:int):
     '''admin only'''
-    if not request.user.is_superuser:
+    if not request.user.has_perm("product.delete_product"):
         messages.warning(request, "only admin can delete product", "alert-warning")
         return redirect("main:home_view")
 
@@ -95,9 +110,36 @@ def delete_product_view(request : HttpRequest, product_id:int):
     except Exception as e:
         messages.error(request, "Couldn't Delete Product", "alert-danger")
 
-    return redirect("product:all_products_view")
+    return redirect("product:all_product_view")
 
 #-----------------------------------------------------------------------------------
-def send_low_stock_alert():
-    products = Product.objects.all()
+def send_email(request : HttpRequest):
     low_stock_products = Product.objects.filter(quantity__lt=5, quantity__gt=0)
+    content_html = render_to_string("main/mail/alerts.html", {"low_stock_products" :low_stock_products})
+    superuser = User.objects.filter(is_superuser=True).first()
+    if superuser and superuser.email:
+        send_to = superuser.email
+        email_message = EmailMessage("Low Stock Alert", content_html, settings.EMAIL_HOST_USER,[send_to])
+        email_message.content_subtype = "html"
+        email_message.send()
+
+    messages.warning(request, "You have some low stock product please check your email. Thank You.", "alert-success")
+
+#-----------------------------------------------------------------------------------
+def export_view(request : HttpRequest):
+    products = Product.objects.all()
+    status = ""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="products.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Id', 'Product Name','picture','description' ,'Category', 'Suppliers','Satus','Quantity','Price'])
+    for product in products: 
+         if product.quantity == 0:
+             status = "Out of Stock"
+         elif product.quantity<5:
+             status = "Low Stock"
+         else:
+             status = "Available"
+         supplier_names = ", ".join([s.name for s in product.suppliers.all()])
+         writer.writerow([product.id, product.name,product.picture.url,product.description, product.category, supplier_names, status, product.quantity, product.price])
+    return response

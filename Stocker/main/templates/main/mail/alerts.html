@@ -1,0 +1,9 @@
+<h2>Low Stock Alert</h2>
+<p>The following products have low stock:</p>
+<ul>
+  {% for product in low_stock_products %}
+    <li>{{ product.name }} — Quantity: {{ product.quantity }}</li>
+  {% endfor %}
+</ul>
+
+<p>Please restock them soon to keep inventory healthy.</p>

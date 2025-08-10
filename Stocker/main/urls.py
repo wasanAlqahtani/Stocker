@@ -5,6 +5,7 @@ app_name = "main"
 
 urlpatterns = [
     path('', views.home_view, name="home_view"),
+    path('dashboard/',views.dashboard_view, name="dashboard_view"),
     path("login/", views.login_view,name="login_view"),
     path("signup/", views.signup_view,name="signup_view"),
     path("categories/", views.all_category_view,name="all_category_view"),

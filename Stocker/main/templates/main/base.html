@@ -37,14 +37,14 @@
     </div>
     </div>
   </nav>
-
-  <div class="flex-grow-1 d-flex">
+   {% if request.user.is_authenticated %}
+  <div class="d-flex">
     <!-- Sidebar -->
     <aside class="background-nav p-3 d-flex flex-column">
       <ul class="nav flex-column">
         <li class="nav-item mb-3">
-          <a class="nav-link {% if request.resolver_match.url_name == 'home_view' %}active{% endif %}" href="{% url 'main:home_view' %}">
-            <i class="bi bi-house me-2"></i> Home
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard_view' %}active{% endif %}" href="{% url 'main:dashboard_view' %}">
+            <i class="bi bi-file-bar-graph me-2"></i> DashBoard
           </a>
         </li>
         <li class="nav-item mb-3">
@@ -60,7 +60,7 @@
         </li>
       </ul>
     </aside>
-
+    {%endif%}
     <main class="flex-grow-1 p-4">
       {% block content %}
       {% endblock %}

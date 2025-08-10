@@ -1,0 +1,156 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Home Page
+{% endblock %}
+
+{% block content %}
+     {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <br>
+<div class="welcome-text">
+  <h5 class="text-center">
+    Welcome to jewelryTrack. Easily monitor your jewelry inventory and stock levels.
+  </h5>
+</div>
+<br>
+
+<div class="dashboard-container">
+  <div class="dashboard-card">
+    <h5 class="text-center">Stock Status</h5>
+    <canvas id="stockDonutChart"></canvas>
+  </div>
+
+  <div class="dashboard-card">
+    <h5 class="text-center">Top Supplier</h5>
+    <p class="text-center fw-bold">Total Suppliers: {{suppliers.count}}</p>
+    <canvas id="topSupplierBarChart"></canvas>
+  </div>
+
+  <div class="dashboard-card">
+    <h5 class="text-center">Most Category Used</h5>
+    <p class="text-center fw-bold">Total Category: {{categories.count}}</p>
+    <canvas id="categoryBarChart"></canvas>
+  </div>
+
+  <div class="dashboard-card">
+    <h5 class="text-center p-3">Total Products</h5>
+    <h5 class="text-center">{{Allproducts.count}}</h5>
+  </div>
+</div>
+
+<hr>
+
+<div class="latest-products-container">
+  <div class="report-card">
+    <h5 class="text-center">Latest Products</h5>
+    <br>
+    {% include 'product/product_list.html' %}
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    //Stock Status Chart 
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const counts = JSON.parse('{{ counts|escapejs }}');
+
+  const canvas_status = document.getElementById('stockDonutChart').getContext('2d');
+
+  const data = {
+    labels: labels,
+    datasets: [{
+      data: counts,
+      backgroundColor: ['#ff6f91', '#ffb6c1', '#c71585'], 
+      hoverOffset: 30
+    }]
+  };
+
+  const config = {
+    type: 'doughnut',
+    data: data,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  };
+
+  new Chart(canvas_status, config);
+
+  //Category Chart 
+  const categoryLabels = JSON.parse('{{ category_labels|escapejs }}');
+  const categoryCounts = JSON.parse('{{ category_counts|escapejs }}');
+
+  const canvas_category = document.getElementById('categoryBarChart').getContext('2d');
+
+  const barData = {
+    labels: categoryLabels,
+    datasets: [{
+      label: 'Number of Products',
+      data: categoryCounts,
+      backgroundColor: '#ffb6c1'  // pink color for bars
+    }]
+  };
+
+  const barConfig = {
+    type: 'bar',
+    data: barData,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  };
+
+  new Chart(canvas_category, barConfig);
+  
+  //Supplier Chart 
+const supplierLabels = JSON.parse('{{ supplier_labels|escapejs }}');
+const supplierCounts = JSON.parse('{{ supplier_counts|escapejs }}');
+
+const canvas_supplier = document.getElementById('topSupplierBarChart').getContext('2d');
+
+const supplierBarData = {
+  labels: supplierLabels,
+  datasets: [{
+    label: 'Number of Products',
+    data: supplierCounts,
+    backgroundColor: '#ffb6c1' 
+  }]
+};
+
+const supplierBarConfig = {
+  type: 'bar',
+  data: supplierBarData,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+};
+
+new Chart(canvas_supplier, supplierBarConfig);
+</script>
+{% endblock %}
