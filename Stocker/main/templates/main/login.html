@@ -12,7 +12,7 @@ login Page
           </div>
         {% endfor %}
       {% endif %}
-      
+
 <div class="d-flex flex-column justify-content-center align-items-center vh-100 px-3">
   <h5 class="text-center fw-bold mb-4">
     Welcome to jewelryTrack. <br>
@@ -20,6 +20,7 @@ login Page
   </h5>
 <br>
 <br>
+<!-- Login Form  -->
   <div class="card p-4 shadow" style="max-width: 400px; width: 100%; border-radius: 12px;">
     <h3 class="mb-4 text-center">Login</h3>
     <form action="{% url 'main:login_view' %}" method="POST" novalidate>

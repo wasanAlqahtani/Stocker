@@ -8,7 +8,7 @@ Search Page
 {% if page_obj %}
   <h2 class="mt-4 search-result">Search Results ({{ page_obj.count }})</h2>
   <h5 class="search-result">Results for: <strong>{{ request.GET.search }}</strong></h5>
-
+<!-- use include to display product table    -->
 {% include 'product/product_list.html' %}
 
 {% else %}

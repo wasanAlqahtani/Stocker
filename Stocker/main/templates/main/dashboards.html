@@ -20,33 +20,46 @@ Home Page
   </h5>
 </div>
 <br>
-
+<!--Alert for Low stocks -->
+ {% if low_stock != 0 %}
+   <div class="dashboard-card bg-warning">
+    <h5 class="text-center">Alert : You have some low stock products please check your products</h5>
+  </div> 
+  {%endif%} 
+<br> 
+<!--Chart for stock status -->
 <div class="dashboard-container">
   <div class="dashboard-card">
     <h5 class="text-center">Stock Status</h5>
     <canvas id="stockDonutChart"></canvas>
   </div>
-
+<!--Chart for Top Supplier -->
   <div class="dashboard-card">
     <h5 class="text-center">Top Supplier</h5>
     <p class="text-center fw-bold">Total Suppliers: {{suppliers.count}}</p>
     <canvas id="topSupplierBarChart"></canvas>
   </div>
-
+<!--Chart for Most Category -->
   <div class="dashboard-card">
     <h5 class="text-center">Most Category Used</h5>
     <p class="text-center fw-bold">Total Category: {{categories.count}}</p>
     <canvas id="categoryBarChart"></canvas>
   </div>
-
+<!-- display total product  -->
   <div class="dashboard-card">
     <h5 class="text-center p-3">Total Products</h5>
     <h5 class="text-center">{{Allproducts.count}}</h5>
   </div>
 </div>
-
+<!-- display total product of each status  -->
+<div class="dashboard-card">
+    <h5 class="text-center p-3">Product status</h5>
+    <h5 class="text-center text-danger">Out of stock:{{out_of_stock}}</h5>
+    <h5 class="text-center text-warning">Low stock:{{low_stock}}</h5>
+    <h5 class="text-center text-success">Available:{{available}}</h5>
+  </div>
 <hr>
-
+<!-- display latest products with its detailed-->
 <div class="latest-products-container">
   <div class="report-card">
     <h5 class="text-center">Latest Products</h5>
@@ -54,9 +67,10 @@ Home Page
     {% include 'product/product_list.html' %}
   </div>
 </div>
-
+<!-- used java script for charts  -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  
     //Stock Status Chart 
   const labels = JSON.parse('{{ labels|escapejs }}');
   const counts = JSON.parse('{{ counts|escapejs }}');
@@ -86,6 +100,8 @@ Home Page
   };
 
   new Chart(canvas_status, config);
+
+  //////////////////////////////////////////////////////////////
 
   //Category Chart 
   const categoryLabels = JSON.parse('{{ category_labels|escapejs }}');
@@ -119,7 +135,9 @@ Home Page
   };
 
   new Chart(canvas_category, barConfig);
-  
+
+  //////////////////////////////////////////////////////////////
+
   //Supplier Chart 
 const supplierLabels = JSON.parse('{{ supplier_labels|escapejs }}');
 const supplierCounts = JSON.parse('{{ supplier_counts|escapejs }}');

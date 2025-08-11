@@ -10,16 +10,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count
 from django.shortcuts import render
 import json
+
 # Create your views here.
 def home_view(request:HttpRequest):
+    ''' This Function for home page when the user enter the website for the first time will redirect to login page '''
     return redirect("main:login_view")
 
 def dashboard_view(request : HttpRequest):
+     ''' This Function for generates report and diagrams '''
      page_obj = Product.objects.order_by('-created_at')[:5]
      categories = Category.objects.all()
      suppliers =  Supplier.objects.all()
      Allproducts = Product.objects.all()
-
+     low_stock = Product.objects.filter(quantity__gt=0, quantity__lt=5).count()
+     available = Product.objects.filter(quantity__gte=5).count()
+     out_of_stock =  Product.objects.filter(quantity=0).count()
+     
      # Stock status chart 
      labels = ['Out of Stock', 'Low Stock', 'Available']
      counts = [
@@ -41,14 +47,17 @@ def dashboard_view(request : HttpRequest):
      return render(request, "main/dashboards.html",{'Allproducts':Allproducts,'page_obj':page_obj,'categories':categories, 'suppliers':suppliers,
                 'labels': json.dumps(labels),'counts': json.dumps(counts),
                 'category_labels': json.dumps(category_labels),'category_counts': json.dumps(category_counts),
-                 'supplier_labels': json.dumps(supplier_labels), 'supplier_counts': json.dumps(supplier_counts),})
+                 'supplier_labels': json.dumps(supplier_labels), 'supplier_counts': json.dumps(supplier_counts),
+                 'low_stock':low_stock,'available':available, 'out_of_stock':out_of_stock })
 
 #-----------------------------------------------------------------------------------
 def login_view(request : HttpRequest):
+    ''' This Function for Login user '''
     if request.method == "POST":
+        #use authentication to check the user if exists or not 
         user = authenticate(request, username=request.POST["username"], password=request.POST["password"])
-        print(user)
         if user is not None:
+            #login succssfully 
             login(request, user)
             messages.success(request, "Logged in successfully", "alert-success")
             return redirect("main:dashboard_view")
@@ -58,8 +67,10 @@ def login_view(request : HttpRequest):
 
 #-----------------------------------------------------------------------------------
 def signup_view(request : HttpRequest):
+    ''' This Function for signup new user'''
     if request.method == "POST":
         try:
+            # user user django and create user 
             new_user = User.objects.create_user(username=request.POST["username"],password=request.POST["password"],email=request.POST["email"], first_name=request.POST["first_name"], last_name=request.POST["last_name"])
             new_user.save()
             messages.success(request, "Registered User Successfuly", "alert-success")
@@ -73,16 +84,21 @@ def signup_view(request : HttpRequest):
 
 #-----------------------------------------------------------------------------------
 def sign_out(request: HttpRequest):
+    ''' This Function for log out the user '''
+    # logout django user 
     logout(request)
     messages.success(request, "logged out successfully", "alert-warning")
     return redirect("main:home_view")
 
 #-----------------------------------------------------------------------------------
 def add_category_view(request : HttpRequest):
+    ''' This Function for add new category '''
+    #check if the user have permisstions for adding 
     if not request.user.has_perm("main.add_category"):
         messages.warning(request, "only admin can add category", "alert-warning")
         return redirect("main:all_category_view")
     try:
+        #add the category to CategoryForm 
         if request.method == "POST":
            category_form = CategoryForm(request.POST)
            if category_form.is_valid():
@@ -99,10 +115,13 @@ def add_category_view(request : HttpRequest):
      
 #-----------------------------------------------------------------------------------
 def update_category_view(request : HttpRequest, category_id:int):
+    ''' This Funstion for update category '''
+     #check if the user have permisstions for updating 
     if not request.user.has_perm("main.change_category"):
         messages.warning(request, "only admin can update category", "alert-warning")
         return redirect("main:all_category_view")
     try:
+        #update the category attributes based on the user entry 
         category = Category.objects.get(pk=category_id)
         category.category_name = request.POST["category_name"]
         category.description = request.POST["description"]
@@ -115,11 +134,14 @@ def update_category_view(request : HttpRequest, category_id:int):
     
 #-----------------------------------------------------------------------------------
 def delete_category_view(request : HttpRequest, category_id:int):
+    ''' This Funstion for delete category  '''
+     #check if the user have permisstions for deleting 
     if not request.user.has_perm("main.delete_category"):
         messages.warning(request, "only admin can delete category", "alert-warning")
         return redirect("main:all_category_view")
     
     try:
+        #delete the category
         category = Category.objects.get(pk=category_id)
         category.delete()
         messages.success(request, "Deleted Category successfully", "alert-success")
@@ -130,16 +152,20 @@ def delete_category_view(request : HttpRequest, category_id:int):
 
 #-----------------------------------------------------------------------------------
 def all_category_view(request : HttpRequest):
+    ''' This Funstion for display all categories '''
     categories = Category.objects.all().annotate(total_products=Count('product'))
     category_form = CategoryForm()
     return render(request, "main/categories.html",{"categories": categories, "category_form":category_form})
 
 #-----------------------------------------------------------------------------------
 def add_supplier_view(request : HttpRequest):
+    ''' This Funstion for add new supplier '''
+     #check if the user have permisstions for adding 
     if not request.user.has_perm("main.add_supplier"):
         messages.warning(request, "only admin can add supplier", "alert-warning")
         return redirect("main:suppliers.html")
     try:
+         #add the supplier to SupplierForm 
         if request.method == "POST":
            supplier_form = SupplierForm(request.POST,request.FILES)
            if supplier_form.is_valid():
@@ -155,10 +181,13 @@ def add_supplier_view(request : HttpRequest):
     
 #----------------------------------------------------------------------------------
 def update_supplier_view(request : HttpRequest, supplier_id:int):
+    ''' This Funstion for update supplier '''
+     #check if the user have permisstions for updating 
     if not request.user.has_perm("main.change_supplier"):
         messages.warning(request, "only admin can update supplier", "alert-warning")
         return redirect("main:suppliers.html")
     try:
+            #update the category attributes based on the user entry 
             supplier = Supplier.objects.get(pk=supplier_id)
             supplier.name = request.POST["name"]
             supplier.email = request.POST["email"]
@@ -176,17 +205,21 @@ def update_supplier_view(request : HttpRequest, supplier_id:int):
     
 #-----------------------------------------------------------------------------------
 def all_supplier_view(request : HttpRequest):
+    ''' This Funstion for display all suppliers '''
     suppliers = Supplier.objects.all().annotate(total_products=Count('product'))
     supplier_form = SupplierForm()
     return render(request, "main/suppliers.html",{'suppliers': suppliers, 'supplier_form':supplier_form})
 
 #-----------------------------------------------------------------------------------
 def delete_supplier_view(request : HttpRequest, supplier_id:int):
+    ''' This Funstion for delete supplier  '''
+     #check if the user have permisstions for deleting 
     if not request.user.has_perm("main.delete_supplier"):
         messages.warning(request, "only admin can delete supplier", "alert-warning")
         return redirect("main:all_supplier_view")
     
     try:
+         #delete the supplier
         supplier = Supplier.objects.get(pk=supplier_id)
         supplier.delete()
         messages.success(request, "Deleted Supplier successfully", "alert-success")
